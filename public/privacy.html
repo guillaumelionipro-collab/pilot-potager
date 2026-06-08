@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Politique de confidentialité — Pilot Potager</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.65; max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; color: #1f2d24; background: #faf7f0; }
+  h1 { color: #173f32; font-size: 1.7rem; margin-bottom: 4px; }
+  h2 { color: #173f32; font-size: 1.15rem; margin-top: 2.2rem; border-bottom: 1px solid #d8e3da; padding-bottom: 6px; }
+  .updated { color: #6b8475; font-size: 0.85rem; margin-bottom: 1.6rem; }
+  .badge { display: inline-block; background: #e2ecdf; color: #173f32; border-radius: 999px; padding: 2px 12px; font-size: 0.8rem; font-weight: 700; margin-bottom: 14px; }
+  ul { padding-left: 1.3rem; }
+  li { margin-bottom: 6px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 0.92rem; }
+  th, td { border: 1px solid #d8e3da; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #eef3ea; color: #173f32; }
+  a { color: #2f6b3a; }
+  code { background: #eef3ea; padding: 1px 6px; border-radius: 6px; font-size: 0.85em; }
+  footer { margin-top: 3rem; font-size: 0.85rem; color: #6b8475; }
+</style>
+</head>
+<body>
+  <span class="badge">🌿 Pilot Potager</span>
+  <h1>Politique de confidentialité</h1>
+  <p class="updated">Dernière mise à jour : 8 juin 2026</p>
+
+  <p>
+    Cette politique explique quelles données <strong>Pilot Potager</strong> ("l'application", "nous") collecte,
+    pourquoi, comment elles sont protégées, et quels sont vos droits. Nous avons conçu l'application selon le
+    principe du <strong>« local d'abord »</strong> : la grande majorité de vos données (cultures, tâches, récoltes,
+    journal photo, statistiques) reste stockée directement sur votre appareil, sauf si vous choisissez de créer
+    un compte pour activer la sauvegarde dans le cloud.
+  </p>
+
+  <h2>1. Quelles données collectons-nous ?</h2>
+  <table>
+    <tr><th>Donnée</th><th>Quand</th><th>Pourquoi</th><th>Où elle est stockée</th></tr>
+    <tr>
+      <td>Données de votre potager (cultures, zones, tâches, récoltes, journal, semis, stocks)</td>
+      <td>Dès que vous utilisez l'application</td>
+      <td>Fonctionnement de base de l'application (carnet de culture)</td>
+      <td>Localement sur votre appareil (stockage local du navigateur / de l'application). Si vous créez un compte, une copie chiffrée est sauvegardée dans le cloud (Supabase, hébergé dans l'Union européenne).</td>
+    </tr>
+    <tr>
+      <td>Photos de plantes (module « Analyse IA »)</td>
+      <td>Lorsque vous prenez ou importez une photo pour un diagnostic</td>
+      <td>Identifier la plante et générer un diagnostic de santé</td>
+      <td>La photo est envoyée de façon sécurisée (chiffrée, via une fonction serveur qui protège nos clés) à notre fournisseur d'intelligence artificielle (OpenAI) pour analyse, puis n'est pas conservée par nos services après traitement. Le résultat de l'analyse est enregistré localement (et dans le cloud si vous avez un compte).</td>
+    </tr>
+    <tr>
+      <td>Adresse e-mail, mot de passe (haché), nom affiché</td>
+      <td>Si vous créez un compte</td>
+      <td>Vous identifier, synchroniser vos données entre appareils, gérer votre abonnement</td>
+      <td>Supabase (hébergeur de base de données et d'authentification, UE — Francfort). Le mot de passe n'est jamais stocké en clair.</td>
+    </tr>
+    <tr>
+      <td>Statut d'abonnement (Premium / gratuit, identifiant d'achat Google Play)</td>
+      <td>Si vous souscrivez à Pilot Premium</td>
+      <td>Débloquer les fonctionnalités Premium et gérer le renouvellement</td>
+      <td>Google Play Billing (votre paiement est géré entièrement par Google — nous n'avons jamais accès à vos coordonnées bancaires) et RevenueCat (synchronisation de l'état de l'abonnement), puis reflété dans notre base Supabase.</td>
+    </tr>
+    <tr>
+      <td>Ville / position approximative (facultatif)</td>
+      <td>Si vous renseignez votre ville pour la météo locale</td>
+      <td>Afficher la météo et des conseils de jardinage adaptés à votre région</td>
+      <td>Transmise à un service météo tiers pour obtenir les prévisions ; non conservée par nos services au-delà de la session.</td>
+    </tr>
+    <tr>
+      <td>Données techniques (type d'appareil, version de l'application, journaux d'erreurs)</td>
+      <td>En continu, de façon anonymisée</td>
+      <td>Diagnostiquer les bugs et améliorer la stabilité de l'application</td>
+      <td>Hébergeur d'infrastructure (Vercel) et journaux techniques internes</td>
+    </tr>
+  </table>
+
+  <h2>2. Avec qui partageons-nous des données ?</h2>
+  <p>Nous ne vendons jamais vos données. Elles ne sont partagées qu'avec les prestataires strictement nécessaires au fonctionnement de l'application :</p>
+  <ul>
+    <li><strong>OpenAI</strong> — analyse des photos de plantes (le texte/l'image transmis n'est utilisé que pour produire votre diagnostic) ;</li>
+    <li><strong>Supabase</strong> — hébergement de la base de données, authentification et fonctions serveur sécurisées (Union européenne) ;</li>
+    <li><strong>Google Play / RevenueCat</strong> — gestion des achats et abonnements (Premium) ;</li>
+    <li><strong>Vercel</strong> — hébergement de l'application web ;</li>
+    <li><strong>Service météo tiers</strong> — uniquement pour afficher les prévisions liées à votre ville.</li>
+  </ul>
+  <p>Ces prestataires n'ont accès qu'aux données nécessaires à leur mission et sont contractuellement tenus de les protéger.</p>
+
+  <h2>3. Combien de temps conservons-nous vos données ?</h2>
+  <ul>
+    <li>Les données stockées <strong>localement</strong> restent sur votre appareil tant que vous n'avez pas désinstallé l'application ou supprimé vos données depuis les Paramètres.</li>
+    <li>Les données de <strong>compte</strong> (cloud) sont conservées tant que votre compte est actif. Vous pouvez les supprimer à tout moment.</li>
+    <li>Les <strong>photos analysées</strong> ne sont pas conservées par notre service d'IA après génération du diagnostic.</li>
+  </ul>
+
+  <h2>4. Vos droits</h2>
+  <p>Conformément au RGPD et aux lois applicables, vous pouvez à tout moment :</p>
+  <ul>
+    <li><strong>Exporter</strong> l'intégralité de vos données (Paramètres → Vos données → Exporter — fichier JSON téléchargeable) ;</li>
+    <li><strong>Supprimer</strong> vos données locales et/ou votre compte (Paramètres → Vos données → Supprimer mon compte) ;</li>
+    <li><strong>Accéder, rectifier ou limiter</strong> le traitement de vos données en nous contactant (voir ci-dessous) ;</li>
+    <li><strong>Retirer votre consentement</strong> à tout moment, par exemple en n'utilisant plus le module « Analyse IA » ou en continuant à utiliser l'application sans créer de compte.</li>
+  </ul>
+
+  <h2>5. Sécurité</h2>
+  <p>
+    Les communications entre l'application et nos serveurs sont chiffrées (HTTPS/TLS). Les clés sensibles
+    (par exemple, l'accès à notre fournisseur d'IA) ne transitent jamais par votre appareil : elles restent
+    protégées côté serveur. Les mots de passe sont hachés et jamais stockés en clair.
+  </p>
+
+  <h2>6. Enfants</h2>
+  <p>
+    Pilot Potager n'est pas spécifiquement destinée aux enfants de moins de 13 ans et nous ne collectons pas
+    sciemment de données personnelles les concernant.
+  </p>
+
+  <h2>7. Modifications de cette politique</h2>
+  <p>
+    Nous pouvons mettre à jour cette politique pour refléter des évolutions de l'application ou de la
+    réglementation. La date de dernière mise à jour figure en haut de cette page. En cas de changement
+    important, nous vous en informerons via l'application.
+  </p>
+
+  <h2>8. Nous contacter</h2>
+  <p>
+    Pour toute question relative à cette politique ou à vos données personnelles, contactez-nous à :
+    <a href="mailto:guillaumelioni.pro@gmail.com">guillaumelioni.pro@gmail.com</a>
+  </p>
+
+  <footer>
+    Pilot Potager — Carnet de culture intelligent · <a href="/">Retour à l'application</a>
+  </footer>
+</body>
+</html>

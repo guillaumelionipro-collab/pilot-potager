@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #173f32;
+  background: #f7f3ea;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(142, 168, 137, 0.28) 0%, transparent 45%),
+    radial-gradient(ellipse at 100% 100%, rgba(85, 120, 96, 0.12) 0%, transparent 40%),
+    linear-gradient(160deg, #f2ede2 0%, #fffdf7 45%, #eef4e8 100%);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.soft-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(85, 120, 96, 0.45) transparent;
+}
+
+.soft-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.soft-scroll::-webkit-scrollbar-thumb {
+  background: rgba(85, 120, 96, 0.35);
+  border-radius: 999px;
+}
+
+.calendar-grid {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+@media (max-width: 639px) {
+  .calendar-grid {
+    grid-template-columns: repeat(7, minmax(8.5rem, 1fr));
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

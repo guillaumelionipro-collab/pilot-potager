@@ -1,0 +1,22 @@
+{
+  "appId": "com.pilotpotager.app",
+  "appName": "Pilot Potager",
+  "webDir": "dist",
+  "backgroundColor": "#173f32",
+  "android": {
+    "backgroundColor": "#173f32",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#173f32",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    }
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Pilot Potager</string>
+    <string name="title_activity_main">Pilot Potager</string>
+    <string name="package_name">com.pilotpotager.app</string>
+    <string name="custom_url_scheme">com.pilotpotager.app</string>
+</resources>

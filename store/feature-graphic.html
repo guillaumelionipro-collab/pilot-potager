@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1024px; height: 500px; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .wrap {
+    width: 1024px; height: 500px; position: relative;
+    background: linear-gradient(135deg, #173f32 0%, #2f6b3a 55%, #6fae5a 100%);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 70px;
+    color: white;
+  }
+  .leaf { position: absolute; font-size: 240px; opacity: 0.10; right: -40px; top: -60px; transform: rotate(18deg); }
+  .leaf2 { position: absolute; font-size: 180px; opacity: 0.08; left: -50px; bottom: -70px; transform: rotate(-15deg); }
+  .left { max-width: 560px; z-index: 2; }
+  .badge { display:inline-block; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 999px; padding: 6px 18px; font-size: 16px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 22px; }
+  h1 { font-size: 54px; font-weight: 900; line-height: 1.08; margin-bottom: 18px; text-shadow: 0 2px 12px rgba(0,0,0,0.25); }
+  p { font-size: 22px; font-weight: 500; opacity: 0.92; line-height: 1.4; max-width: 480px; }
+  .right { z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .phone { width: 230px; height: 380px; background: #0f2a21; border-radius: 32px; border: 6px solid rgba(255,255,255,0.5);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.35); display:flex; align-items:center; justify-content:center; flex-direction: column; gap: 10px; }
+  .phone .emoji { font-size: 70px; }
+  .phone .score { background: rgba(255,255,255,0.14); border-radius: 14px; padding: 10px 22px; font-weight: 800; font-size: 22px; }
+  .phone .label { font-size: 14px; opacity: 0.8; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="leaf">🌿</span>
+    <span class="leaf2">🌱</span>
+    <div class="left">
+      <span class="badge">🌱 PILOT POTAGER</span>
+      <h1>Diagnostiquez vos plantes en une photo</h1>
+      <p>Carnet de potager intelligent, conseils IA personnalisés et calendrier de culture — pour récolter plus, et mieux.</p>
+    </div>
+    <div class="right">
+      <div class="phone">
+        <div class="emoji">🍅</div>
+        <div class="score">Santé : 92/100</div>
+        <div class="label">Analyse IA en 3 secondes</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

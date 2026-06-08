@@ -1,0 +1,17 @@
+
+# Build artifacts
+# Signing (NE JAMAIS COMMITER)
+*.jks
+*.keystore
+.env
+.env.local
+.vercel
+/android/.gradle
+/android/app/build
+/android/app/release
+/android/build
+/android/captures
+/android/local.properties
+dist
+keystore.properties
+node_modules
