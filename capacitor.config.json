@@ -1,5 +1,5 @@
 {
-  "appId": "com.pilotpotager.app",
+  "appId": "fr.pilotai.potager",
   "appName": "Pilot Potager",
   "webDir": "dist",
   "backgroundColor": "#173f32",
