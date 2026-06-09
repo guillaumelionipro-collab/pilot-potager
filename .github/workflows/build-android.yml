@@ -23,6 +23,11 @@ jobs:
 
       - name: Build de l'application web
         run: npm run build
+        env:
+          VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
+          VITE_PLANT_VISION_ENDPOINT: ${{ secrets.VITE_PLANT_VISION_ENDPOINT }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Synchroniser le projet Android (Capacitor)
         run: npx cap sync android
