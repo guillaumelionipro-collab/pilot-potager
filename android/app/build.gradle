@@ -10,10 +10,10 @@ if (hasSigningConfig) {
 }
 
 android {
-    namespace = "com.pilotpotager.app"
+    namespace = "fr.pilotai.potager"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.pilotpotager.app"
+        applicationId "fr.pilotai.potager"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
