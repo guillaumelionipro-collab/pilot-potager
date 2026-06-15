@@ -89,7 +89,7 @@ const navGroups = [
   { label: "Outils", items: [
     ["Plan visuel",    Grid3X3],
     ["Stocks",         Package],
-    ["Mes Statistiques", TrendingUp],
+    ["Statistiques", TrendingUp],
   ]},
   { label: "Compte", items: [
     ["Pilot Premium",  Crown],
@@ -121,7 +121,7 @@ const PAGE_META = {
   "Fiches légumes":        { emoji: "🥦", subtitle: "Fiches pratiques par légume" },
   "Plan visuel":           { emoji: "🗺️",  subtitle: "Vue cartographique du potager" },
   "Stocks":                { emoji: "📦", subtitle: "Inventaire des semences et fournitures" },
-  "Mes Statistiques":      { emoji: "📊", subtitle: "Analyse de vos performances au potager" },
+  "Statistiques":      { emoji: "📊", subtitle: "Analyse de vos performances au potager" },
   "Pilot Premium":         { emoji: "⭐", subtitle: "Débloquez toutes les fonctionnalités" },
   "Paramètres":            { emoji: "⚙️", subtitle: "Compte, abonnement, confidentialité et données" },
 };
@@ -284,7 +284,6 @@ export default function App() {
   const authConfigured = isAuthConfigured();
   const [authReady, setAuthReady] = useState(!authConfigured);
   const [session, setSession] = useState(null);
-  const [skipAuth, setSkipAuth] = useState(() => localStorage.getItem("pilot-potager:skip-auth") === "1");
 
   useEffect(() => {
     if (!authConfigured) return;
@@ -305,13 +304,6 @@ export default function App() {
 
   const handleAuthenticated = (newSession) => {
     setSession(newSession);
-    localStorage.removeItem("pilot-potager:skip-auth");
-    setSkipAuth(false);
-  };
-
-  const handleSkipAuth = () => {
-    localStorage.setItem("pilot-potager:skip-auth", "1");
-    setSkipAuth(true);
   };
 
   const handleSignOut = async () => {
@@ -458,8 +450,8 @@ export default function App() {
       </div>
     );
   }
-  if (authConfigured && !session && !skipAuth) {
-    return <AuthGate onAuthenticated={handleAuthenticated} onSkip={handleSkipAuth} />;
+  if (authConfigured && !session) {
+    return <AuthGate onAuthenticated={handleAuthenticated} />;
   }
 
   return (
@@ -584,7 +576,7 @@ export default function App() {
               )}
               <div className="flex items-center gap-2">
                 <span className="text-xl leading-none">{pageMeta.emoji}</span>
-                <h1 className="text-lg font-black text-garden-pine truncate">{active}</h1>
+                <h1 className="text-base sm:text-lg font-black text-garden-pine leading-tight">{active}</h1>
               </div>
               {pageMeta.subtitle && (
                 <p className="text-xs text-garden-leaf mt-0.5 hidden sm:block">{pageMeta.subtitle}</p>
@@ -647,7 +639,7 @@ export default function App() {
           {active === "Saisons" && <SeasonTools {...context} />}
           {active === "Analyse IA" && <PhotoAnalysis />}
           {active === "Bibliothèque cultures" && <CultureLibrary />}
-          {active === "Mes Statistiques" && <Statistics cultures={cultures} harvests={harvests} tasks={tasks} journal={journal} history={history} />}
+          {active === "Statistiques" && <Statistics cultures={cultures} harvests={harvests} tasks={tasks} journal={journal} history={history} />}
           {active === "Pilot Premium" && <PremiumPage />}
           {active === "Paramètres" && <SettingsPage user={session?.user || null} authConfigured={authConfigured} onSignOut={handleSignOut} />}
         </div>

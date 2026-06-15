@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Check, Sparkles, X, Loader, Crown, ShieldCheck, RefreshCw } from "lucide-react";
+import { Check, Sparkles, Loader, Crown, ShieldCheck, RefreshCw } from "lucide-react";
 import { Card, Button } from "../ui.jsx";
 import {
   PREMIUM_FEATURES, PREMIUM_PRICE, FREE_LIMITS,
-  isPremium, setLocalPlan, getAiUsage,
+  isPremium, getAiUsage,
   isNativeApp, purchasePremium, restorePurchases, refreshSubscriptionStatus,
   MANAGE_SUBSCRIPTION_URL,
 } from "../../utils/billing";
@@ -55,12 +55,6 @@ export default function PremiumPage() {
     setRestoring(false);
     if (result.ok) setPremium(result.premium);
     setMessage({ tone: result.premium ? "green" : "gray", text: result.message });
-  }
-
-  function handleDowngrade() {
-    setLocalPlan("free");
-    setPremium(false);
-    setMessage({ tone: "gray", text: "Retour au plan gratuit (démo locale — sur Android, gérez votre abonnement via Google Play)." });
   }
 
   return (
@@ -117,11 +111,6 @@ export default function PremiumPage() {
               <div className="h-full rounded-full bg-garden-leaf" style={{ width: `${Math.min(100, (usage.count / FREE_LIMITS.aiAnalysesPerMonth) * 100)}%` }} />
             </div>
           </div>
-          {premium && !native && (
-            <Button variant="secondary" className="mt-4 w-full" onClick={handleDowngrade}>
-              <X size={16} /> Repasser en gratuit (démo)
-            </Button>
-          )}
         </Card>
 
         {/* Premium */}
@@ -171,10 +160,13 @@ export default function PremiumPage() {
             )}
           </div>
 
+          <p className="mt-3 text-[11px] text-garden-sage">
+            Abonnement géré par <strong>Google Play</strong>. Facturation récurrente, annulable à tout moment depuis
+            votre compte Google.
+          </p>
           {!native && (
-            <p className="mt-3 text-[11px] text-garden-sage">
-              Mode démo (aperçu web) : les abonnements réels passent par <strong>Google Play Billing</strong> dans
-              l'application Android — ce bouton bascule simplement votre compte local en Premium pour prévisualiser l'expérience.
+            <p className="mt-1 text-[11px] text-garden-sage">
+              L'achat se fait depuis l'application Android — téléchargez Pilot Potager sur Google Play pour passer Premium.
             </p>
           )}
         </Card>

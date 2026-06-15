@@ -14,7 +14,7 @@ const MODES = {
  * magic-link fallback, and password reset. On success, calls `onAuthenticated`
  * with the new Supabase session.
  */
-export default function AuthGate({ onAuthenticated, onSkip }) {
+export default function AuthGate({ onAuthenticated }) {
   const [mode, setMode] = useState("signin"); // "signin" | "signup"
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -154,12 +154,6 @@ export default function AuthGate({ onAuthenticated, onSkip }) {
           <button onClick={toggleMode} className="mt-4 w-full rounded-xl border border-garden-moss px-4 py-2.5 text-sm font-bold text-garden-pine hover:bg-garden-moss/40 transition">
             {copy.switchLabel} <span className="text-garden-leaf">{copy.switchCta}</span>
           </button>
-
-          {onSkip && (
-            <button onClick={onSkip} className="mt-3 w-full text-center text-xs font-bold text-garden-sage underline decoration-garden-moss underline-offset-2">
-              Continuer sans compte (mode local uniquement)
-            </button>
-          )}
 
           <p className="mt-5 flex items-start gap-2 text-[11px] text-garden-sage">
             <ShieldCheck size={14} className="mt-0.5 flex-shrink-0" />

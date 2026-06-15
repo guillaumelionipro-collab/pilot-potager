@@ -1,4 +1,4 @@
-import { CheckCircle2, Droplets, Sun, AlertTriangle, Sparkles, FlaskConical, ShieldAlert } from "lucide-react";
+import { CheckCircle2, Droplets, Sun, AlertTriangle, Sparkles, ShieldAlert } from "lucide-react";
 
 // ── Premium AI diagnostic report card ───────────────────────────────────────
 // Renders the structured "fiche complète" produced after a photo analysis:
@@ -88,15 +88,9 @@ export default function PlantHealthCard({ result, source }) {
       <div className="bg-gradient-to-br from-garden-pine to-garden-leaf px-6 py-5 text-white">
         <div className="flex items-center gap-2 mb-3">
           <p className="text-xs font-black uppercase tracking-widest opacity-60">Fiche de diagnostic premium</p>
-          {source === "ai" ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 text-[10px] font-black uppercase tracking-wider">
-              <Sparkles size={10} /> Analyse IA réelle
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/15 text-white/70 text-[10px] font-black uppercase tracking-wider">
-              <FlaskConical size={10} /> Mode démo
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-200 text-[10px] font-black uppercase tracking-wider">
+            <Sparkles size={10} /> Analyse IA
+          </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-5">

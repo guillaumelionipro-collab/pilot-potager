@@ -314,41 +314,12 @@ export default function PhotoAnalysis() {
         )}
 
         {/* Info box */}
-        {AI_READY ? (
-          <div className="flex items-start gap-2 rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-800">
-            <Sparkles size={16} className="mt-0.5 flex-shrink-0" />
-            <div>
-              <strong>Analyse IA réelle activée</strong>
-              {AI_MODE === "proxy" ? (
-                <> via un service sécurisé (<code className="px-1 py-0.5 rounded bg-emerald-100 text-xs">VITE_PLANT_VISION_ENDPOINT</code>) : votre clé OpenAI reste côté serveur, jamais exposée au navigateur. </>
-              ) : (
-                <> en appel direct (<code className="px-1 py-0.5 rounded bg-emerald-100 text-xs">VITE_OPENAI_API_KEY</code>) — pratique en local, mais la clé transite par le navigateur ; passez par un proxy sécurisé pour un déploiement public. </>
-              )}
-              Chaque photo est envoyée au modèle de vision qui identifie la plante et génère un diagnostic à partir de l'image — n'importe quel type de plante, pas uniquement celles déjà suivies dans « Mes Plantes ».
-            </div>
+        <div className="flex items-start gap-2 rounded-2xl bg-garden-moss/40 px-4 py-3 text-sm text-garden-pine">
+          <Sparkles size={16} className="mt-0.5 flex-shrink-0" />
+          <div>
+            <strong>Comment ça marche ?</strong> Prenez ou importez une photo de votre plante : notre assistant l'analyse et retourne un diagnostic complet (état de santé, stade, actions recommandées et estimation de récolte). Il reconnaît n'importe quel type de plante, pas uniquement celles déjà suivies dans « Mes Plantes ».
           </div>
-        ) : (
-          <div className="rounded-2xl bg-garden-moss/40 px-4 py-3 text-sm text-garden-pine">
-            <strong>Comment ça marche ?</strong> L'IA analyse votre photo et retourne un diagnostic complet : état de santé, stade, actions recommandées et estimation de récolte. Elle reconnaît n'importe quel type de plante, pas uniquement celles déjà suivies dans « Mes Plantes ».
-            <p className="mt-1 text-xs text-garden-leaf">
-              <strong>Mode démo actif</strong> — les résultats sont simulés (variables selon la plante choisie). Pour activer l'analyse réelle, copiez <code className="px-1 py-0.5 rounded bg-garden-cream text-xs">.env.example</code> en <code className="px-1 py-0.5 rounded bg-garden-cream text-xs">.env</code> et choisissez une option :
-            </p>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
-              <div className="rounded-xl border border-garden-moss bg-white/70 px-3 py-2">
-                <p className="text-xs font-black text-garden-pine mb-1">🔒 Recommandé — proxy sécurisé</p>
-                <p className="text-[11px] text-garden-leaf mb-1.5">Déployez <code className="px-1 rounded bg-garden-cream">supabase/functions/analyze-plant</code>, votre clé OpenAI reste côté serveur.</p>
-                <pre className="rounded-lg bg-garden-pine/90 text-garden-cream text-[10px] px-2 py-1.5 overflow-x-auto">VITE_PLANT_VISION_ENDPOINT=...
-VITE_SUPABASE_ANON_KEY=...</pre>
-              </div>
-              <div className="rounded-xl border border-garden-moss bg-white/70 px-3 py-2">
-                <p className="text-xs font-black text-garden-pine mb-1">⚡ Rapide — usage personnel</p>
-                <p className="text-[11px] text-garden-leaf mb-1.5">Appel direct depuis le navigateur ; la clé transite avec la requête (OK en local uniquement).</p>
-                <pre className="rounded-lg bg-garden-pine/90 text-garden-cream text-[10px] px-2 py-1.5 overflow-x-auto">VITE_OPENAI_API_KEY=sk-...</pre>
-              </div>
-            </div>
-            <p className="mt-2 text-xs text-garden-leaf">Puis relancez l'application (<code className="px-1 py-0.5 rounded bg-garden-cream text-xs">npm run dev</code>). La clé/le modèle doit supporter la vision (ex. gpt-4o-mini).</p>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* ── Right col : result ── */}
