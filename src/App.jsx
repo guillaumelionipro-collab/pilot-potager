@@ -49,6 +49,7 @@ import Statistics from "./components/potager/Statistics";
 import SettingsPage from "./components/potager/SettingsPage";
 import TodayInGarden from "./components/potager/TodayInGarden";
 import GardenerProgress from "./components/potager/GardenerProgress";
+import PhotoSourceButtons from "./components/potager/PhotoSourceButtons";
 import { formatDate, loadCollection, makeId, saveCollection, todayIso } from "./utils/storage";
 import { fetchWeather, gardenAdvice, weatherLabel } from "./utils/weather";
 import { askRemoteAssistant } from "./utils/aiAssistant";
@@ -2053,7 +2054,7 @@ function JournalModal({ zones, cultures, journal, setJournal, editing, activeSea
     <SelectField label="Culture liée" value={form.culture} options={cultures.map((culture) => `${culture.plant} ${culture.variety}`)} onChange={(culture) => setForm({ ...form, culture })} />
     <SelectField label="Zone liée" value={form.zone} options={zones.map((zone) => zone.name)} onChange={(zone) => setForm({ ...form, zone })} />
     <Field label="Photo">
-      <input className={inputClass} type="file" accept="image/*" capture="environment" onChange={(event) => loadPhoto(event.target.files?.[0])} />
+      <PhotoSourceButtons onFile={loadPhoto} className="justify-start" />
       {form.photo && <img className="mt-2 h-28 w-full rounded-2xl object-cover" src={form.photo} alt="Aperçu" />}
     </Field>
     <TextField label="État observé" value={form.observation} onChange={(observation) => setForm({ ...form, observation })} />

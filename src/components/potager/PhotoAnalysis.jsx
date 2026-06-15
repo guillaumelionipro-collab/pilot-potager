@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Camera, Upload, Loader, AlertTriangle, Sparkles, FlaskConical } from "lucide-react";
 import { myPlants } from "../../data/potager/plants";
 import { analyzePlantPhoto, isVisionConfigured, visionMode } from "../../utils/plantVision";
 import PlantHealthCard from "./PlantHealthCard";
+import PhotoSourceButtons from "./PhotoSourceButtons";
 
 // Demo result library — one realistic diagnostic profile per plant type.
 // In production this whole object disappears: the model generates the JSON live from the photo.
@@ -190,7 +191,6 @@ export default function PhotoAnalysis() {
   const [resultSource, setResultSource] = useState(null); // "ai" | "demo"
   const [error, setError] = useState(null);
   const [dragging, setDragging] = useState(false);
-  const fileRef = useRef();
 
   function handleFile(file) {
     if (!file?.type.startsWith("image/")) return;
@@ -256,18 +256,19 @@ export default function PhotoAnalysis() {
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
-            onClick={() => fileRef.current.click()}
           >
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-garden-pine/10">
               <Camera size={32} className="text-garden-pine" />
             </div>
             <div>
-              <p className="text-base font-bold text-garden-pine">Glissez une photo ici</p>
-              <p className="text-sm text-garden-leaf">ou cliquez pour choisir un fichier</p>
+              <p className="text-base font-bold text-garden-pine">Ajoutez une photo de votre plante</p>
+              <p className="text-sm text-garden-leaf">Prenez une photo ou importez-en une depuis votre galerie</p>
               <p className="mt-1 text-xs text-garden-sage">JPG, PNG · max 10 Mo</p>
             </div>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden"
-              onChange={(e) => handleFile(e.target.files[0])} />
+            <PhotoSourceButtons
+              onFile={handleFile}
+              onError={(msg) => setError(msg)}
+            />
           </div>
         ) : (
           <div className="rounded-3xl overflow-hidden border border-garden-moss shadow-card">
