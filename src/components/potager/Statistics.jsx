@@ -13,7 +13,7 @@ function parseQty(value = "") {
 
 const MONTHS = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
-export default function Statistics({ cultures = [], harvests = [], tasks = [], journal = [], history = [] }) {
+export default function Statistics({ cultures = [], harvests = [], tasks = [], journal = [], history = [], zones = [] }) {
   const stats = useMemo(() => {
     const totalCultures = cultures.length;
     const finished = cultures.filter((c) => c.status === "terminé");
@@ -44,8 +44,29 @@ export default function Statistics({ cultures = [], harvests = [], tasks = [], j
       count: cultures.filter((c) => c.status === status).length,
     }));
 
-    return { totalCultures, totalWeight, successRate, aiAnalyses, followUpDays, buckets, byStatus, harvestsCount: harvests.length };
-  }, [cultures, harvests, tasks, journal, history]);
+    // Top cultures by harvested weight
+    const byCulture = new Map();
+    harvests.forEach((h) => {
+      const key = h.culture || "Récolte";
+      byCulture.set(key, (byCulture.get(key) || 0) + parseQty(h.quantity));
+    });
+    const topCultures = [...byCulture.entries()]
+      .map(([culture, weight]) => ({ culture, weight }))
+      .sort((a, b) => b.weight - a.weight)
+      .slice(0, 5);
+
+    // Productivity per zone
+    const byZone = new Map();
+    harvests.forEach((h) => {
+      const key = h.zone || "Zone";
+      byZone.set(key, (byZone.get(key) || 0) + parseQty(h.quantity));
+    });
+    const zoneStats = [...byZone.entries()]
+      .map(([zone, weight]) => ({ zone, weight }))
+      .sort((a, b) => b.weight - a.weight);
+
+    return { totalCultures, totalWeight, successRate, aiAnalyses, followUpDays, buckets, byStatus, harvestsCount: harvests.length, topCultures, zoneStats };
+  }, [cultures, harvests, tasks, journal, history, zones]);
 
   const maxWeight = Math.max(1, ...stats.buckets.map((b) => b.weight));
   const maxStatus = Math.max(1, ...stats.byStatus.map((b) => b.count));
@@ -108,6 +129,52 @@ export default function Statistics({ cultures = [], harvests = [], tasks = [], j
               </div>
             ))}
             {!stats.totalCultures && <p className="text-sm text-garden-leaf">Ajoutez des cultures pour voir vos statistiques.</p>}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid gap-5 xl:grid-cols-2">
+        {/* Top cultures by harvest weight */}
+        <Card>
+          <h2 className="text-lg font-black text-garden-pine mb-4">Top cultures (poids récolté)</h2>
+          <div className="grid gap-3">
+            {stats.topCultures.map((c, i) => {
+              const max = Math.max(1, ...stats.topCultures.map((t) => t.weight));
+              return (
+                <div key={c.culture}>
+                  <div className="flex items-center justify-between text-sm font-semibold text-garden-pine mb-1">
+                    <span>{i + 1}. {c.culture}</span>
+                    <span>{(c.weight / 1000).toFixed(2)} kg</span>
+                  </div>
+                  <div className="h-2.5 rounded-full bg-garden-cream overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-garden-pine to-garden-leaf" style={{ width: `${(c.weight / max) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+            {!stats.topCultures.length && <p className="text-sm text-garden-leaf">Aucune récolte enregistrée pour l'instant.</p>}
+          </div>
+        </Card>
+
+        {/* Productivity per zone */}
+        <Card>
+          <h2 className="text-lg font-black text-garden-pine mb-4">Productivité par zone</h2>
+          <div className="grid gap-3">
+            {stats.zoneStats.map((z) => {
+              const max = Math.max(1, ...stats.zoneStats.map((t) => t.weight));
+              return (
+                <div key={z.zone}>
+                  <div className="flex items-center justify-between text-sm font-semibold text-garden-pine mb-1">
+                    <span>{z.zone}</span>
+                    <span>{(z.weight / 1000).toFixed(2)} kg</span>
+                  </div>
+                  <div className="h-2.5 rounded-full bg-garden-cream overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-600" style={{ width: `${(z.weight / max) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+            {!stats.zoneStats.length && <p className="text-sm text-garden-leaf">Aucune récolte enregistrée pour l'instant.</p>}
           </div>
         </Card>
       </div>

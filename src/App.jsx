@@ -641,7 +641,7 @@ export default function App() {
           {active === "Saisons" && <SeasonTools {...context} />}
           {active === "Analyse IA" && <PhotoAnalysis />}
           {active === "Bibliothèque cultures" && <CultureLibrary />}
-          {active === "Statistiques" && <Statistics cultures={cultures} harvests={harvests} tasks={tasks} journal={journal} history={history} />}
+          {active === "Statistiques" && <Statistics cultures={cultures} harvests={harvests} tasks={tasks} journal={journal} history={history} zones={zones} />}
           {active === "Pilot Premium" && <PremiumPage />}
           {active === "Paramètres" && <SettingsPage user={session?.user || null} authConfigured={authConfigured} onSignOut={handleSignOut} />}
         </div>
