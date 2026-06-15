@@ -50,6 +50,7 @@ import SettingsPage from "./components/potager/SettingsPage";
 import TodayInGarden from "./components/potager/TodayInGarden";
 import GardenerProgress from "./components/potager/GardenerProgress";
 import PhotoSourceButtons from "./components/potager/PhotoSourceButtons";
+import { analyzePlantPhoto, isVisionConfigured } from "./utils/plantVision";
 import { formatDate, loadCollection, makeId, saveCollection, todayIso } from "./utils/storage";
 import { fetchWeather, gardenAdvice, weatherLabel } from "./utils/weather";
 import { askRemoteAssistant } from "./utils/aiAssistant";
@@ -648,6 +649,7 @@ export default function App() {
 
       {modal === "zone" && <ZoneModal zones={zones} setZones={setZones} editing={editing?.type === "zone" ? editing.item : null} recordHistory={recordHistory} onClose={closeModal} />}
       {modal === "culture" && <CultureModal zones={zones} cultures={cultures} setCultures={setCultures} editing={editing?.type === "culture" ? editing.item : null} draft={cultureDraft} activeSeason={activeSeason} recordHistory={recordHistory} onClose={closeModal} />}
+      {modal === "culture-wizard" && <CultureWizardModal zones={zones} cultures={cultures} setCultures={setCultures} activeSeason={activeSeason} recordHistory={recordHistory} onClose={closeModal} />}
       {modal === "task" && <TaskModal zones={zones} cultures={cultures} tasks={tasks} setTasks={setTasks} editing={editing?.type === "task" ? editing.item : null} draft={taskDraft} activeSeason={activeSeason} recordHistory={recordHistory} onClose={closeModal} />}
       {modal === "harvest" && <HarvestModal zones={zones} cultures={cultures} harvests={harvests} setHarvests={setHarvests} editing={editing?.type === "harvest" ? editing.item : null} activeSeason={activeSeason} recordHistory={recordHistory} onClose={closeModal} />}
       {modal === "journal" && <JournalModal zones={zones} cultures={cultures} journal={journal} setJournal={setJournal} editing={editing?.type === "journal" ? editing.item : null} activeSeason={activeSeason} recordHistory={recordHistory} onClose={closeModal} />}
@@ -725,7 +727,7 @@ function QuickActions({ openModal }) {
         </div>
       )}
       <div className="hidden gap-2 md:flex">
-        <Button onClick={() => openModal("culture")}><Plus size={16} />Ajouter une culture</Button>
+        <Button onClick={() => openModal("culture-wizard")}><Plus size={16} />Ajouter une culture</Button>
         <Button variant="secondary" onClick={() => openModal("zone")}><Plus size={16} />Ajouter une zone</Button>
         <Button variant="secondary" onClick={() => openModal("task")}><Plus size={16} />Ajouter une tâche</Button>
         <Button variant="secondary" onClick={() => openModal("harvest")}><Plus size={16} />Ajouter une récolte</Button>
@@ -993,7 +995,7 @@ function Cultures({ cultures, setCultures, openModal }) {
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-end gap-3">
-        <Button className="w-fit" onClick={() => openModal("culture")}><Plus size={16} />Ajouter une culture</Button>
+        <Button className="w-fit" onClick={() => openModal("culture-wizard")}><Plus size={16} />Ajouter une culture</Button>
         <select className={inputClass} value={zoneFilter} onChange={(event) => setZoneFilter(event.target.value)}>{zones.map((item) => <option key={item}>{item}</option>)}</select>
         <select className={inputClass} value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>{["Tous", ...statuses].map((item) => <option key={item}>{item}</option>)}</select>
         <select className={inputClass} value={familyFilter} onChange={(event) => setFamilyFilter(event.target.value)}>{families.map((item) => <option key={item}>{item}</option>)}</select>
@@ -2038,6 +2040,186 @@ function CultureModal({ zones, cultures, setCultures, editing, draft, activeSeas
     <TextField label="Date estimée de récolte" type="date" value={form.harvestDate} onChange={(harvestDate) => setForm({ ...form, harvestDate })} />
     <TextArea label="Notes" value={form.notes} onChange={(notes) => setForm({ ...form, notes })} />
   </FormGrid></Modal>;
+}
+
+const WIZARD_STEPS = ["Identification", "Validation IA", "Ajout au potager"];
+
+function CultureWizardModal({ zones, cultures, setCultures, activeSeason, recordHistory, onClose }) {
+  const [step, setStep] = useState(0);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState(null);
+  const [detected, setDetected] = useState(null); // { plant, confidence, suggestions }
+  const [form, setForm] = useState({
+    plant: "", variety: "", zone: zones[0]?.name ?? "", plantingDate: todayIso(), quantity: "", notes: "",
+  });
+
+  function pickFile(file) {
+    setImageUrl(URL.createObjectURL(file));
+    setImageFile(file);
+    setError(null);
+  }
+
+  async function runAnalysis() {
+    setAnalyzing(true);
+    setError(null);
+    if (isVisionConfigured() && imageFile) {
+      const response = await analyzePlantPhoto(imageFile, null);
+      if (response.ok) {
+        const plantName = response.result.plant_detected || "";
+        const card = vegetableCards.find((c) => c.name.toLowerCase() === plantName.toLowerCase());
+        const sameFamily = vegetableCards
+          .filter((c) => c.name.toLowerCase() !== plantName.toLowerCase() && (card ? c.type === card.type : false))
+          .slice(0, 3)
+          .map((c) => c.name);
+        setDetected({
+          plant: plantName,
+          confidence: Math.round((response.result.confidence || 0) * 100),
+          suggestions: sameFamily,
+        });
+        setForm((f) => ({ ...f, plant: plantName || f.plant }));
+        setAnalyzing(false);
+        setStep(1);
+        return;
+      }
+      setError(response.message || "L'analyse IA a échoué — vous pouvez identifier la culture manuellement.");
+    }
+    setDetected(null);
+    setAnalyzing(false);
+    setStep(1);
+  }
+
+  function applySuggestion(name) {
+    setDetected((d) => ({ ...d, plant: name }));
+    setForm((f) => ({ ...f, plant: name }));
+  }
+
+  function finish() {
+    const payload = {
+      ...form,
+      sowingDate: "", status: "bon", watering: "", nextAction: "", harvestDate: "",
+      id: makeId("culture"), seasonId: activeSeason?.id,
+      updatedAt: new Date().toISOString(), createdAt: new Date().toISOString(),
+    };
+    const card = vegetableCards.find((c) => c.name.toLowerCase() === form.plant.toLowerCase());
+    if (card) {
+      payload.watering = card.water;
+      payload.nextAction = `Surveiller : ${card.diseases}`;
+      payload.notes = payload.notes || `Sol : ${card.soil}. Espacement : ${card.spacing}. Conseil : ${card.tips}`;
+    }
+    setCultures([...cultures, payload]);
+    recordHistory?.("culture", `Création : ${payload.plant} ${payload.variety}`.trim());
+    onClose();
+  }
+
+  return (
+    <Modal title="Ajouter une culture" onClose={onClose}>
+      {/* Step indicator */}
+      <div className="mb-5 flex items-center gap-2">
+        {WIZARD_STEPS.map((label, i) => (
+          <div key={label} className="flex items-center gap-2 flex-1">
+            <div className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-black ${
+              i === step ? "bg-garden-pine text-white" : i < step ? "bg-garden-leaf text-white" : "bg-garden-moss text-garden-pine"
+            }`}>{i + 1}</div>
+            <span className={`text-xs font-bold ${i === step ? "text-garden-pine" : "text-garden-sage"}`}>{label}</span>
+            {i < WIZARD_STEPS.length - 1 && <div className="h-px flex-1 bg-garden-moss" />}
+          </div>
+        ))}
+      </div>
+
+      {/* Step 1 — Identification */}
+      {step === 0 && (
+        <div className="grid gap-4">
+          {imageUrl ? (
+            <div className="rounded-3xl overflow-hidden border border-garden-moss shadow-card">
+              <img src={imageUrl} alt="Photo de la culture" className="w-full max-h-64 object-cover" />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-garden-sage/50 bg-garden-paper/60 p-10 text-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-garden-pine/10">
+                <Camera size={28} className="text-garden-pine" />
+              </div>
+              <div>
+                <p className="text-base font-bold text-garden-pine">Identifiez votre culture</p>
+                <p className="text-sm text-garden-leaf">Prenez une photo ou importez-en une pour une analyse IA</p>
+              </div>
+              <PhotoSourceButtons onFile={pickFile} onError={(msg) => setError(msg)} />
+            </div>
+          )}
+          {error && <p className="text-sm font-semibold text-rose-600">{error}</p>}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <button type="button" onClick={() => setStep(1)} className="text-xs font-bold text-garden-sage underline decoration-garden-moss underline-offset-2">
+              Ajouter manuellement, sans photo
+            </button>
+            {imageUrl && (
+              <Button onClick={runAnalysis} disabled={analyzing}>
+                {analyzing ? <><Loader size={16} className="animate-spin" /> Analyse en cours…</> : <>Lancer l'analyse IA</>}
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Step 2 — Validation IA */}
+      {step === 1 && (
+        <div className="grid gap-4">
+          {detected?.plant ? (
+            <div className="rounded-2xl bg-emerald-50 border border-emerald-200 px-4 py-3">
+              <p className="text-sm text-emerald-800">
+                Culture détectée : <strong className="text-base">{detected.plant}</strong>
+              </p>
+              <p className="mt-1 text-sm text-emerald-800">Confiance : <strong>{detected.confidence}%</strong></p>
+              {detected.suggestions?.length > 0 && (
+                <div className="mt-2">
+                  <p className="text-xs font-bold text-emerald-700 mb-1">Suggestions proches :</p>
+                  <div className="flex flex-wrap gap-2">
+                    {detected.suggestions.map((name) => (
+                      <button key={name} type="button" onClick={() => applySuggestion(name)}
+                        className="rounded-full bg-white border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-800 hover:bg-emerald-100">
+                        {name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-garden-moss/40 px-4 py-3 text-sm text-garden-pine">
+              Identifiez votre culture manuellement ci-dessous.
+            </div>
+          )}
+          <Field label="Légume / fruit / aromate">
+            <input className={inputClass} list="wizard-vegetable-list" value={form.plant} onChange={(e) => setForm({ ...form, plant: e.target.value })} required />
+            <datalist id="wizard-vegetable-list">{vegetableCards.map((card) => <option key={card.name} value={card.name} />)}</datalist>
+          </Field>
+          <TextField label="Variété (optionnel)" value={form.variety} onChange={(variety) => setForm({ ...form, variety })} />
+          <div className="flex items-center justify-between gap-2">
+            <button type="button" onClick={() => setStep(0)} className="text-xs font-bold text-garden-sage underline decoration-garden-moss underline-offset-2">
+              ← Retour
+            </button>
+            <Button onClick={() => setStep(2)} disabled={!form.plant.trim()}>Valider</Button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3 — Ajout au potager */}
+      {step === 2 && (
+        <div className="grid gap-4">
+          <SelectField label="Zone" value={form.zone} options={zones.map((zone) => zone.name)} onChange={(zone) => setForm({ ...form, zone })} />
+          <TextField label="Date de plantation" type="date" value={form.plantingDate} onChange={(plantingDate) => setForm({ ...form, plantingDate })} />
+          <TextField label="Quantité" value={form.quantity} onChange={(quantity) => setForm({ ...form, quantity })} placeholder="ex. 4 plants" />
+          <TextArea label="Notes" value={form.notes} onChange={(notes) => setForm({ ...form, notes })} />
+          <div className="flex items-center justify-between gap-2">
+            <button type="button" onClick={() => setStep(1)} className="text-xs font-bold text-garden-sage underline decoration-garden-moss underline-offset-2">
+              ← Retour
+            </button>
+            <Button onClick={finish}><Plus size={16} /> Ajouter au potager</Button>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
 }
 
 function TaskModal({ zones, cultures, tasks, setTasks, editing, draft, activeSeason, recordHistory, onClose }) {
