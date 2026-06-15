@@ -620,7 +620,7 @@ export default function App() {
         {/* Page content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-10">
 
-          {active === "Dashboard" && <Dashboard {...context} tasks={tasks} problems={problems} zones={zones} journal={journal} weather={weather} weatherCity={weatherCity} setWeatherCity={setWeatherCity} weatherState={weatherState} />}
+          {active === "Dashboard" && <Dashboard {...context} tasks={tasks} problems={problems} zones={zones} journal={journal} weather={weather} weatherCity={weatherCity} setWeatherCity={setWeatherCity} weatherState={weatherState} setActive={setActive} />}
           {active === "Mes Plantes" && <MyPlants />}
           {active === "Cette semaine" && <WeekFocus {...context} weather={weather} />}
           {active === "Mon potager" && <GardenZones {...context} openModal={openModal} />}
@@ -734,7 +734,21 @@ function QuickActions({ openModal }) {
   );
 }
 
-function Dashboard({ cultures, tasks, problems, zones, journal, history, harvests, overdueTasks, todayTasks, upcomingHarvests, watchedCultures, weather, weatherCity, setWeatherCity, weatherState }) {
+const QUICK_ACTIONS = [
+  { label: "Scanner une plante", icon: Camera, target: "Analyse IA" },
+  { label: "Ajouter une culture", icon: Sprout, target: "Mes cultures" },
+  { label: "Ajouter une tâche", icon: CheckCircle2, target: "Tâches" },
+  { label: "Ajouter une récolte", icon: Droplets, target: "Récoltes" },
+];
+
+const QUICK_TODO = [
+  { label: "Arroser", icon: Droplets, target: "Cette semaine" },
+  { label: "Surveiller maladie", icon: ShieldAlert, target: "Diagnostic" },
+  { label: "Fertiliser", icon: Sprout, target: "Tâches" },
+  { label: "Récolter", icon: Wheat, target: "Récoltes" },
+];
+
+function Dashboard({ cultures, tasks, problems, zones, journal, history, harvests, overdueTasks, todayTasks, upcomingHarvests, watchedCultures, weather, weatherCity, setWeatherCity, weatherState, setActive }) {
   const [cityInput, setCityInput] = useState(weatherCity);
   const stats = [
     ["Cultures actives", cultures.filter((c) => c.status !== "terminé").length],
@@ -747,6 +761,30 @@ function Dashboard({ cultures, tasks, problems, zones, journal, history, harvest
   return (
     <div className="grid gap-5 xl:grid-cols-[1.3fr_0.7fr]">
       <div className="grid gap-5">
+        <Card>
+          <h2 className="text-lg font-black text-garden-pine mb-3">Actions rapides</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {QUICK_ACTIONS.map(({ label, icon: Icon, target }) => (
+              <button key={label} onClick={() => setActive?.(target)}
+                className="flex flex-col items-center gap-2 rounded-2xl border border-garden-moss bg-garden-paper/60 p-4 text-center hover:bg-garden-moss/30 transition">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-garden-pine/10 text-garden-pine"><Icon size={20} /></span>
+                <span className="text-xs font-bold text-garden-pine leading-tight">{label}</span>
+              </button>
+            ))}
+          </div>
+        </Card>
+        <Card>
+          <h2 className="text-lg font-black text-garden-pine mb-3">À faire maintenant</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {QUICK_TODO.map(({ label, icon: Icon, target }) => (
+              <button key={label} onClick={() => setActive?.(target)}
+                className="flex flex-col items-center gap-2 rounded-2xl border border-garden-moss bg-garden-cream/70 p-4 text-center hover:bg-garden-moss/30 transition">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-garden-leaf/15 text-garden-leaf"><Icon size={20} /></span>
+                <span className="text-xs font-bold text-garden-pine leading-tight">{label}</span>
+              </button>
+            ))}
+          </div>
+        </Card>
         <TodayInGarden tasks={tasks} cultures={cultures} problems={problems} watering={watchedCultures} />
         <section className="grid gap-4 md:grid-cols-4">
           {stats.map(([label, value]) => (
