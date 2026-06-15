@@ -1349,30 +1349,102 @@ function Tasks({ tasks, setTasks, openModal }) {
   );
 }
 
-function PhotoJournal({ journal, setJournal, openModal }) {
+const GROWTH_MILESTONES = [0, 7, 15, 30, 60];
+
+function PhotoJournal({ journal, setJournal, cultures, openModal }) {
+  const [view, setView] = useState("list"); // "list" | "timeline"
+
   return (
     <div className="grid gap-5">
-      <Button className="w-fit" onClick={() => openModal("journal")}><Plus size={16} />Ajouter une entrée</Button>
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {journal.map((entry) => (
-          <Card key={entry.id}>
-            <div className="mb-4 flex h-44 items-center justify-center rounded-2xl border border-dashed border-garden-sage bg-garden-cream text-garden-leaf">
-              {entry.photo ? <img className="h-full w-full rounded-2xl object-cover" src={entry.photo} alt={entry.culture} /> : <Camera size={34} />}
-            </div>
-            <div className="flex items-start justify-between gap-3">
-              <Badge tone="blue">{formatDate(entry.date)}</Badge>
-              <ItemActions onEdit={() => openModal("journal", entry)} onDelete={() => setJournal(journal.filter((item) => item.id !== entry.id))} />
-            </div>
-            <h2 className="mt-3 text-xl font-black">{entry.culture}</h2>
-            <p className="text-sm font-semibold text-garden-leaf">{entry.zone}</p>
-            <p className="mt-3 text-sm">{entry.note}</p>
-            <div className="mt-4 grid gap-2 text-sm">
-              <Info label="État observé" value={entry.observation} />
-              <Info label="Problème" value={entry.issue} />
-            </div>
-          </Card>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <Button className="w-fit" onClick={() => openModal("journal")}><Plus size={16} />Ajouter une entrée</Button>
+        <div className="inline-flex rounded-xl border border-garden-moss bg-garden-paper/60 p-1 text-xs font-bold">
+          <button type="button" onClick={() => setView("list")}
+            className={`rounded-lg px-3 py-1.5 transition ${view === "list" ? "bg-garden-pine text-white" : "text-garden-pine"}`}>
+            Liste
+          </button>
+          <button type="button" onClick={() => setView("timeline")}
+            className={`rounded-lg px-3 py-1.5 transition ${view === "timeline" ? "bg-garden-pine text-white" : "text-garden-pine"}`}>
+            Chronologie de croissance
+          </button>
+        </div>
       </div>
+
+      {view === "list" ? (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {journal.map((entry) => (
+            <Card key={entry.id}>
+              <div className="mb-4 flex h-44 items-center justify-center rounded-2xl border border-dashed border-garden-sage bg-garden-cream text-garden-leaf">
+                {entry.photo ? <img className="h-full w-full rounded-2xl object-cover" src={entry.photo} alt={entry.culture} /> : <Camera size={34} />}
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <Badge tone="blue">{formatDate(entry.date)}</Badge>
+                <ItemActions onEdit={() => openModal("journal", entry)} onDelete={() => setJournal(journal.filter((item) => item.id !== entry.id))} />
+              </div>
+              <h2 className="mt-3 text-xl font-black">{entry.culture}</h2>
+              <p className="text-sm font-semibold text-garden-leaf">{entry.zone}</p>
+              <p className="mt-3 text-sm">{entry.note}</p>
+              <div className="mt-4 grid gap-2 text-sm">
+                <Info label="État observé" value={entry.observation} />
+                <Info label="Problème" value={entry.issue} />
+              </div>
+            </Card>
+          ))}
+          {!journal.length && <EmptyState title="Aucune photo" text="Ajoutez votre première entrée de journal." />}
+        </div>
+      ) : (
+        <GrowthTimeline journal={journal} cultures={cultures} openModal={openModal} />
+      )}
+    </div>
+  );
+}
+
+function GrowthTimeline({ journal, cultures, openModal }) {
+  const groups = useMemo(() => {
+    return (cultures || [])
+      .map((culture) => {
+        const entries = journal.filter((entry) => entry.culture === `${culture.plant} ${culture.variety}` || entry.culture === culture.plant);
+        if (!entries.length) return null;
+        const planted = culture.plantingDate ? new Date(culture.plantingDate) : null;
+        const milestones = GROWTH_MILESTONES.map((day) => {
+          const target = planted ? new Date(planted.getTime() + day * 86400000) : null;
+          const match = entries
+            .map((entry) => ({ entry, diff: target ? Math.abs(new Date(entry.date) - target) : Infinity }))
+            .sort((a, b) => a.diff - b.diff)
+            .find(({ diff }) => !target || diff <= 4 * 86400000);
+          return { day, entry: match?.entry || null, target };
+        });
+        return { culture, entries, milestones };
+      })
+      .filter(Boolean);
+  }, [journal, cultures]);
+
+  if (!groups.length) return <EmptyState title="Aucune chronologie" text="Ajoutez des photos liées à vos cultures pour suivre leur évolution dans le temps." />;
+
+  return (
+    <div className="grid gap-5">
+      {groups.map(({ culture, milestones }) => (
+        <Card key={culture.id}>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black">{culture.plant} {culture.variety}</h2>
+              <p className="text-sm font-semibold text-garden-leaf">{culture.zone}{culture.plantingDate ? ` · planté le ${formatDate(culture.plantingDate)}` : ""}</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-5">
+            {milestones.map(({ day, entry }) => (
+              <div key={day} className="grid gap-2">
+                <Badge tone={entry ? "green" : "gray"}>{day === 0 ? "J+0" : `J+${day}`}</Badge>
+                <button type="button" onClick={() => openModal("journal", entry || { culture: `${culture.plant} ${culture.variety}`, zone: culture.zone, date: new Date().toISOString().slice(0, 10) })}
+                  className="flex h-28 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-garden-sage bg-garden-cream text-garden-leaf">
+                  {entry?.photo ? <img className="h-full w-full object-cover" src={entry.photo} alt="" /> : <Plus size={22} />}
+                </button>
+                {entry && <p className="text-[11px] text-garden-leaf">{formatDate(entry.date)}</p>}
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
     </div>
   );
 }
