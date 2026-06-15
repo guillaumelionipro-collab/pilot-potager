@@ -58,6 +58,7 @@ import { syncToSupabase, isAuthConfigured, getSession, onAuthStateChange, signOu
 import { buildNotifications } from "./utils/notifications";
 import { loginRevenueCat } from "./utils/billing";
 import { companionPlants, cropFamilies, getCropEnhancement, inferCardType, monthLabels, vegetableWikiPages } from "./modules/gardenKnowledge";
+import { cultureLibrary } from "./data/cultureLibrary";
 
 const navGroups = [
   { label: "Tableau de bord", items: [
@@ -1735,10 +1736,48 @@ function GardenPlan({ zones, cultures, setCultures, recordHistory }) {
                 {!items.length && <div className="col-span-2 rounded-2xl border border-dashed border-garden-sage p-5 text-center text-sm font-semibold text-garden-leaf">Zone libre</div>}
               </div>
               <RotationHint cultures={items} />
+              <CompanionWarnings cultures={items} />
             </Card>
           );
         })}
       </div>
+    </div>
+  );
+}
+
+function findLibraryEntry(plantName) {
+  if (!plantName) return null;
+  const lower = plantName.toLowerCase();
+  return cultureLibrary.find((entry) => lower.includes(entry.name.toLowerCase()) || entry.name.toLowerCase().includes(lower));
+}
+
+function CompanionWarnings({ cultures }) {
+  const names = cultures.map((c) => c.plant);
+  const warnings = [];
+  const goods = [];
+  cultures.forEach((culture) => {
+    const entry = findLibraryEntry(culture.plant);
+    if (!entry) return;
+    names.forEach((other) => {
+      if (other === culture.plant) return;
+      const otherLower = other.toLowerCase();
+      if (entry.badCompanions?.some((bad) => otherLower.includes(bad))) {
+        warnings.push(`${culture.plant} + ${other}`);
+      }
+      if (entry.goodCompanions?.some((good) => otherLower.includes(good))) {
+        goods.push(`${culture.plant} + ${other}`);
+      }
+    });
+  });
+  if (!warnings.length && !goods.length) return null;
+  return (
+    <div className="mt-2 grid gap-1.5">
+      {warnings.map((w) => (
+        <p key={w} className="rounded-2xl bg-rose-100 px-3 py-1.5 text-xs font-bold text-rose-800">⚠️ Associations à éviter : {w}</p>
+      ))}
+      {goods.map((g) => (
+        <p key={g} className="rounded-2xl bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-800">✅ Bonne association : {g}</p>
+      ))}
     </div>
   );
 }
