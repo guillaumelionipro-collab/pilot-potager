@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Check, Sparkles, Loader, Crown, ShieldCheck, RefreshCw } from "lucide-react";
 import { Card, Button } from "../ui.jsx";
 import {
-  PREMIUM_FEATURES, PREMIUM_PRICE, FREE_LIMITS,
+  PREMIUM_FEATURES, PREMIUM_PRICE, PREMIUM_PRICE_ANNUAL, FREE_LIMITS,
   isPremium, getAiUsage,
   isNativeApp, purchasePremium, restorePurchases, refreshSubscriptionStatus,
   MANAGE_SUBSCRIPTION_URL,
@@ -17,6 +17,7 @@ const FREE_FEATURES = [
 
 export default function PremiumPage() {
   const [premium, setPremium] = useState(isPremium());
+  const [billingPeriod, setBillingPeriod] = useState("annual"); // "monthly" | "annual"
   const [loading, setLoading] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [message, setMessage] = useState(null);
@@ -122,10 +123,39 @@ export default function PremiumPage() {
             <h2 className="text-xl font-black text-garden-pine flex items-center gap-2"><Crown size={18} className="text-garden-amber" /> Premium</h2>
             {premium && <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-700">Actif</span>}
           </div>
-          <p className="mt-2 flex items-baseline gap-1">
-            <span className="text-3xl font-black text-garden-pine">{PREMIUM_PRICE.amount.toString().replace(".", ",")} {PREMIUM_PRICE.currency}</span>
-            <span className="text-sm font-semibold text-garden-leaf">/ {PREMIUM_PRICE.interval}</span>
-          </p>
+          {/* Monthly / annual toggle */}
+          <div className="mt-3 inline-flex rounded-xl border border-garden-moss bg-garden-paper/60 p-1 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setBillingPeriod("monthly")}
+              className={`rounded-lg px-3 py-1.5 transition ${billingPeriod === "monthly" ? "bg-garden-pine text-white" : "text-garden-pine"}`}
+            >
+              Mensuel
+            </button>
+            <button
+              type="button"
+              onClick={() => setBillingPeriod("annual")}
+              className={`relative rounded-lg px-3 py-1.5 transition ${billingPeriod === "annual" ? "bg-garden-pine text-white" : "text-garden-pine"}`}
+            >
+              Annuel
+              <span className="absolute -top-3 -right-2 rounded-full bg-garden-amber px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wide text-garden-pine shadow">
+                ⭐ Recommandé
+              </span>
+            </button>
+          </div>
+
+          {billingPeriod === "annual" ? (
+            <p className="mt-3 flex items-baseline gap-1">
+              <span className="text-3xl font-black text-garden-pine">{PREMIUM_PRICE_ANNUAL.amount.toString().replace(".", ",")} {PREMIUM_PRICE_ANNUAL.currency}</span>
+              <span className="text-sm font-semibold text-garden-leaf">/ {PREMIUM_PRICE_ANNUAL.interval}</span>
+              <span className="ml-2 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-black text-emerald-700">2 mois offerts</span>
+            </p>
+          ) : (
+            <p className="mt-3 flex items-baseline gap-1">
+              <span className="text-3xl font-black text-garden-pine">{PREMIUM_PRICE.amount.toString().replace(".", ",")} {PREMIUM_PRICE.currency}</span>
+              <span className="text-sm font-semibold text-garden-leaf">/ {PREMIUM_PRICE.interval}</span>
+            </p>
+          )}
           <p className="mt-1 text-sm text-garden-leaf">Sans engagement — annulable à tout moment depuis Google Play.</p>
           <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
             {PREMIUM_FEATURES.map((f) => (

@@ -37,6 +37,7 @@ export const PREMIUM_FEATURES = [
 ];
 
 export const PREMIUM_PRICE = { amount: 4.99, currency: "€", interval: "mois" };
+export const PREMIUM_PRICE_ANNUAL = { amount: 39.99, currency: "€", interval: "an" };
 
 function currentPeriod() {
   const d = new Date();
