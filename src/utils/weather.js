@@ -48,6 +48,48 @@ export function weatherLabel(code) {
   return "Météo douce";
 }
 
+export function weatherAlerts(weather) {
+  if (!weather) return [];
+  const alerts = [];
+  if (weather.min !== undefined && weather.min <= 2) {
+    alerts.push({
+      type: "frost",
+      icon: "❄️",
+      title: "Risque de gel cette nuit",
+      message: `Température minimale prévue : ${weather.min}°C. Protégez vos cultures sensibles (voiles d'hivernage, cloches, rentrez les pots fragiles).`,
+      tone: "blue",
+    });
+  }
+  if (weather.max !== undefined && weather.max >= 30) {
+    alerts.push({
+      type: "heatwave",
+      icon: "🌡️",
+      title: "Canicule annoncée",
+      message: `Température maximale prévue : ${weather.max}°C. Arrosez tôt le matin ou en soirée, paillez le sol et ombragez les jeunes plants.`,
+      tone: "amber",
+    });
+  }
+  if (weather.wind >= 40) {
+    alerts.push({
+      type: "wind",
+      icon: "💨",
+      title: "Vent fort",
+      message: `Rafales jusqu'à ${weather.wind} km/h. Vérifiez tuteurs, filets et serres ; rentrez les pots légers.`,
+      tone: "amber",
+    });
+  }
+  if (weather.rain >= 10) {
+    alerts.push({
+      type: "rain",
+      icon: "🌧️",
+      title: "Fortes pluies prévues",
+      message: `${weather.rain} mm attendus. Suspendez l'arrosage, vérifiez le drainage des bacs et zones en pente.`,
+      tone: "blue",
+    });
+  }
+  return alerts;
+}
+
 export function gardenAdvice(weather) {
   if (!weather) return "Météo locale en cours de chargement. Conseil par défaut : vérifier l'humidité du sol avant d'arroser.";
   if (weather.rain >= 5) return "Pluie significative prévue : suspendez l'arrosage extérieur et surveillez le drainage des bacs.";

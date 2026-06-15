@@ -52,7 +52,7 @@ import GardenerProgress from "./components/potager/GardenerProgress";
 import PhotoSourceButtons from "./components/potager/PhotoSourceButtons";
 import { analyzePlantPhoto, isVisionConfigured } from "./utils/plantVision";
 import { formatDate, loadCollection, makeId, saveCollection, todayIso } from "./utils/storage";
-import { fetchWeather, gardenAdvice, weatherLabel } from "./utils/weather";
+import { fetchWeather, gardenAdvice, weatherLabel, weatherAlerts } from "./utils/weather";
 import { askRemoteAssistant } from "./utils/aiAssistant";
 import { syncToSupabase, isAuthConfigured, getSession, onAuthStateChange, signOut } from "./utils/supabaseClient";
 import { buildNotifications } from "./utils/notifications";
@@ -787,6 +787,7 @@ function Dashboard({ cultures, tasks, problems, zones, journal, history, harvest
             ))}
           </div>
         </Card>
+        <WeatherAlerts weather={weather} />
         <TodayInGarden tasks={tasks} cultures={cultures} problems={problems} watering={watchedCultures} />
         <section className="grid gap-4 md:grid-cols-4">
           {stats.map(([label, value]) => (
@@ -845,6 +846,28 @@ function Dashboard({ cultures, tasks, problems, zones, journal, history, harvest
           </div>
         )} />
       </div>
+    </div>
+  );
+}
+
+function WeatherAlerts({ weather }) {
+  const alerts = weatherAlerts(weather);
+  if (!alerts.length) return null;
+  const toneClasses = {
+    blue: "border-sky-300 bg-sky-50 text-sky-900",
+    amber: "border-amber-300 bg-amber-50 text-amber-900",
+  };
+  return (
+    <div className="grid gap-3">
+      {alerts.map((alert) => (
+        <div key={alert.type} className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold ${toneClasses[alert.tone] || toneClasses.blue}`}>
+          <span className="text-xl leading-none">{alert.icon}</span>
+          <div>
+            <p className="font-black">{alert.title}</p>
+            <p className="mt-0.5 font-medium">{alert.message}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
